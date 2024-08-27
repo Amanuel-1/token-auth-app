@@ -41,9 +41,11 @@ export default function LoginForm() {
     const res = await signIn(data);
     if (res.success) {
       const accessToken = JSON.parse(res.response).accessToken;
+      const refreshToken = JSON.parse(res.response).refreshToken;
       
             
       Cookies.set('accessToken', accessToken);
+      Cookies.set('refreshToken',refreshToken)
       
       console.log("the access token is ",Cookies.get('accessToken'))    
       toast.success("Login successful", { icon: "✅ " });

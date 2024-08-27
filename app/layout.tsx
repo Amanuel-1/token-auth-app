@@ -18,6 +18,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <nav className="flex items-center justify-center gap-8 p-4 bg-gray-800 text-white">
+          <a href="/" className="text-white">
+            Home
+          </a>
+          <a href="/profile" className="text-white">
+            profile
+          </a>
+        
+        </nav>
         {children}
         <Toaster />
       </body>

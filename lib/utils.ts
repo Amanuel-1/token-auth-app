@@ -127,28 +127,64 @@ export const signInSchema = z.object({
 
 export async function handleVerification() {
   try {
-    const accessToken = Cookies.get("accessToken");
+    let accessToken = Cookies.get("accessToken");
     if (!accessToken) {
       return { error: "You are not logged in", success: false };
     }
-    const res = await fetch("http://localhost:4000/user/verify-token", {
+
+    // Attempt to verify the token
+    let res = await fetch("http://localhost:4000/user/verify-token", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
+      credentials: "include",
+      
     });
 
+    // If the token is expired, refresh it
+    if (res.status === 401) { // Assuming 401 indicates token expiration
+      console.log("Access token expired, attempting to refresh...");
+
+      const refreshRes = await fetch("http://localhost:4000/user/token", {
+        method: "POST",
+        credentials: 'include', // Ensure cookies are sent with the request
+      });
+
+      if (!refreshRes.ok) {
+        console.error("Refresh token expired or invalid.");
+        return { error: "Your session has expired", success: false };
+      }
+
+      const refreshData = await refreshRes.json();
+      accessToken = refreshData.accessToken;
+
+      // Update the access token in the cookie
+      Cookies.set("accessToken", accessToken!);
+
+      // Retry the verification with the new access token
+      res = await fetch("http://localhost:4000/user/verify-token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (!res.ok) {
+        return { error: "Verification failed after token refresh", success: false };
+      }
+    }
+
+    // If the token is still valid or verification succeeded after refresh
     if (res.ok) {
       const data = await res.json();
-      console.log("here is the verified data ", data);
       return { error: "", success: true, data: data };
     } else {
-      console.error("your session has expired");
-
-      return { error: "Your session has expired", success: false };
+      return { error: "Verification failed", success: false };
     }
   } catch (err) {
-    return { error: `${err}`, success: false };
+    return { error: `An error occurred: ${err}`, success: false };
   }
 }
