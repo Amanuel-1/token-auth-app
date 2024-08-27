@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 // import { fetchWithToken, refreshAccessToken, testToken } from "@/lib/utils";
 import { toast } from "sonner";
 import axios from "axios";
+import { handleVerification } from "@/lib/utils";
 
 type User = {
   name: string;
@@ -25,40 +26,38 @@ const ProfilePage: React.FC = () => {
   const getUser = async () => {
     try {
       const accessToken = Cookies.get("accessToken");
-      if(!accessToken){
+      if (!accessToken) {
         toast.error("You are not logged in");
         router.push("/auth/login");
+        return;
       }
-      const res = await fetch("http://localhost:4000/user/verify-token",{
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-    
-      });
-
-      if(res.ok){
-        const data = await res.json();
-        console.log("here is the verified data " ,data)
-        setUser(data.user);
+  
+      const verify = await handleVerification();
+  
+      if (!verify.success) {
+        toast.error(verify.error);
+        router.push("/auth/login");
+        return;
       }
-
-      else {
-        toast.error("your session has expired")
-        
+  
+      console.log("this is the verified data", verify.data);
+  
+      // Check if `verify.data.user` exists and set it
+      if (verify.data && verify.data.user) {
+        setUser(verify.data.user);
+      } else {
+        console.error("User data is missing in the response");
+        toast.error("User data is missing in the response");
         router.push("/auth/login");
       }
-
-    }
-    catch(err){
+  
+    } catch (err) {
       console.log(err);
-      toast.error("You are not logged in");
-      router.push("/auth/login")
-
+      toast.error(`You are not logged in, ${err}`);
+      router.push("/auth/login");
     }
   };
-
+  
   // Run getUser when the component mounts
   useEffect(() => {
     getUser();

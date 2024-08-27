@@ -18,7 +18,7 @@ export const signUpSchema = z.object({
   }),
   confirmPassword: z.string().min(8, {
     message: "Password must be at least 8 characters.",
-  })
+  }),
 });
 
 export const signInSchema = z.object({
@@ -124,3 +124,31 @@ export const signInSchema = z.object({
 //     console.error("Error fetching token:", error);
 //   }
 // }
+
+export async function handleVerification() {
+  try {
+    const accessToken = Cookies.get("accessToken");
+    if (!accessToken) {
+      return { error: "You are not logged in", success: false };
+    }
+    const res = await fetch("http://localhost:4000/user/verify-token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      console.log("here is the verified data ", data);
+      return { error: "", success: true, data: data };
+    } else {
+      console.error("your session has expired");
+
+      return { error: "Your session has expired", success: false };
+    }
+  } catch (err) {
+    return { error: `${err}`, success: false };
+  }
+}
