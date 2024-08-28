@@ -20,12 +20,10 @@ export default function Home() {
           </CardHeader>
           <CardContent className="w-[50vw] h-[300px]">
             <div className="flex flex-col gap-5 ">
-              <Button className="w-full " onClick={() => toast.success("this is working")}>
-                alert
-              </Button>
-              <Button className="w-full " onClick={() => toast.success("this is working")}>
-                alert
-              </Button>
+              
+              <p className="">
+                This app uses token based authentication, with two way tokens . 
+              </p>
             </div>
           </CardContent>
         </Card>
