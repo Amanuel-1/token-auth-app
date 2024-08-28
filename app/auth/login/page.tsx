@@ -25,7 +25,7 @@ import { signInSchema } from "@/lib/utils";
 import { signIn } from "@/actions/auth.action";
 import { toast } from "sonner";
 
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 import { cookies } from "next/headers";
 
 export default function LoginForm() {
@@ -42,12 +42,12 @@ export default function LoginForm() {
     if (res.success) {
       const accessToken = JSON.parse(res.response).accessToken;
       const refreshToken = JSON.parse(res.response).refreshToken;
-      
-            
-      Cookies.set('accessToken', accessToken);
-      Cookies.set('refreshToken',refreshToken)
-      
-      console.log("the access token is ",Cookies.get('accessToken'))    
+
+      Cookies.set("accessToken", accessToken);
+      Cookies.set("refreshToken", refreshToken);
+      Cookies.set("accessToken", accessToken);
+      Cookies.set("refreshToken", refreshToken);
+      console.log("the access token is ", Cookies.get("accessToken"));
       toast.success("Login successful", { icon: "✅ " });
       router.push("/");
     } else {
@@ -97,14 +97,12 @@ export default function LoginForm() {
                   </FormItem>
                 )}
               />
-
+              {/* <input type="hidden" name="_csrf" value="{{csrfToken}}"></input> */}
               <Button type="submit" className="w-full mt-4">
                 Submit
               </Button>
 
-              <div className="relative my-2">
-                
-              </div>
+              <div className="relative my-2"></div>
             </form>
           </FormProvider>
         </CardContent>
